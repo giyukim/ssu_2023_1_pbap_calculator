@@ -195,7 +195,7 @@ int assign_token(char target,
 	
 	// 연산자
 	_Bool is_unary = index == 0 || exp_tokens[index-1][0] == TOKEN_OPERATOR;
-	if(result = assign_token_operator(target, exp_tokens[index], is_unary) != SKIP)
+	if((result = assign_token_operator(target, exp_tokens[index], is_unary)) != SKIP)
 	{
 		if(result == FAIL) return FAIL;
 
@@ -211,7 +211,7 @@ int assign_token(char target,
 	}
 	
 	// 커맨드
-	if(result = assign_token_command(target, exp_tokens[index]) != SKIP)
+	if((result = assign_token_command(target, exp_tokens[index])) != SKIP)
 	{
 		if(result == FAIL) return FAIL;
 		
@@ -235,7 +235,7 @@ int assign_token(char target,
 	//
 	
 	// 변수
-	if(result = assign_token_variable(target, exp_tokens[index]) != SKIP)
+	if((result = assign_token_variable(target, exp_tokens[index])) != SKIP)
 	{
 		if(result == FAIL) return FAIL;
 

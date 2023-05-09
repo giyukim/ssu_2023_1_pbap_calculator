@@ -38,9 +38,6 @@
 #define COMMAND_SAVE			4
 #define COMMAND_QUIT			5
 
-// TOKEN_VARIABLE settings
-#define VARIABLE_TOTAL_COUNT	5
-
 
 void debug_print_tokens(int exp_tokens[1000][2])
 {

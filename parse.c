@@ -173,10 +173,19 @@ int main()
     }
 
     for(int temp_loop_token_pointer = 0; temp_loop_token_pointer < count_exp_tokens; temp_loop_token_pointer++){
+        if((temp_loop_token_pointer == 0 || temp_loop_token_pointer == count_exp_tokens - 1) && exp_tokens[temp_loop_token_pointer][0] == 1){
+            error = true;
+            goto raise_error;
+        }
+        if(exp_tokens[temp_loop_token_pointer][0] == 0 && len_exp_tokens_integer[temp_loop_token_pointer] == 1 && exp_tokens_integer[temp_loop_token_pointer][0] != 0){
+            error = true;
+            goto raise_error;
+        }
         if(exp_tokens[temp_loop_token_pointer][0] == 2 && (temp_loop_token_pointer != 0 || count_exp_tokens > 1)) {
             error = true;
             goto raise_error;
         }
+
         // TODO : Exception
     }
 

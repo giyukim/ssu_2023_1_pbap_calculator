@@ -14,7 +14,7 @@ _Bool is_blank(char target)
     return false;
 }
 
-_Bool is_integer(char target) // Judge character target is integer(0~9)
+_Bool is_integer(char target)  // Judge character target is integer(0~9)
 {
     if(target >= 48 && target <= 57) return true;
     return false;
@@ -33,14 +33,14 @@ _Bool is_command(char target)  // Judge character target is command(lrtsqh)
     return false;
 }
 
-_Bool is_variable(char target)
+_Bool is_variable(char target) // Judge character target is variable(abcde)
 {
     char target_upper = (char)toupper(target);
     if(target_upper >= 65 && target_upper <= 69) return true;
     return false;
 }
 
-void print_result(char message[])
+void print_result(char message[]) // Print Result
 {
     printf("======> %s", message);
 }
@@ -60,7 +60,7 @@ int main()
     int count_exp_tokens = 0;
     char exp_tokens_integer[MAX_DIGIT_EXPRESSION + 1][MAX_DIGIT_EXPRESSION + 2], exp_tokens_operator[MAX_DIGIT_EXPRESSION + 1], exp_tokens_command[MAX_DIGIT_EXPRESSION + 1], exp_tokens_variable[MAX_DIGIT_EXPRESSION + 1];
     int count_exp_tokens_integer = 0, count_exp_tokens_operator = 0, count_exp_tokens_command = 0, count_exp_tokens_variable = 0;
-    char exp_tokens_integer_inverted[MAX_DIGIT_EXPRESSION + 1][MAX_DIGIT_EXPRESSION + 2];
+    int exp_tokens_integer_inverted[MAX_DIGIT_EXPRESSION + 1][MAX_DIGIT_EXPRESSION + 2] = {0}, len_exp_tokens_integer[MAX_DIGIT_INTEGER + 1] = {0};
     _Bool error = false;
 
     // Raw Input
@@ -150,9 +150,9 @@ int main()
             goto raise_error;
         }
     }
-    // Invert Integer Tokens TODO : Char Array -> Integer Array
+    // Invert Integer Tokens and Remove Sign from -0/+0
     for(int temp_loop_integer_token_pointer = 0; temp_loop_integer_token_pointer < count_exp_tokens_integer; temp_loop_integer_token_pointer++){
-        char temp_string[MAX_DIGIT_INTEGER + 2], temp_string_inverted[MAX_DIGIT_INTEGER + 2] = {0};
+        char temp_string[MAX_DIGIT_INTEGER + 2];
         strcpy(temp_string, exp_tokens_integer[temp_loop_integer_token_pointer]);
         int count_temp_string = strlen(temp_string);
         if(temp_string[1] == '0' && count_temp_string == 2){
@@ -160,9 +160,16 @@ int main()
             temp_string[1] = 0;
             count_temp_string = 1;
         }
-        for(int temp_loop_integer_pointer = 0; temp_loop_integer_pointer < count_temp_string; temp_loop_integer_pointer++) temp_string_inverted[temp_loop_integer_pointer] = temp_string[count_temp_string - 1 - temp_loop_integer_pointer];
+        len_exp_tokens_integer[temp_loop_integer_token_pointer] = count_temp_string;
+        for(int temp_loop_integer_pointer = 0; temp_loop_integer_pointer < count_temp_string; temp_loop_integer_pointer++) {
+            if(count_temp_string == 1 || temp_loop_integer_pointer != 0){
+                exp_tokens_integer_inverted[temp_loop_integer_token_pointer][count_temp_string - 1 - temp_loop_integer_pointer] = (int)temp_string[temp_loop_integer_pointer] - 48;
+            } else {
+                if(temp_string[0] == '+') exp_tokens_integer_inverted[temp_loop_integer_token_pointer][count_temp_string - 1] = 1;
+                else if(temp_string[0] == '-') exp_tokens_integer_inverted[temp_loop_integer_token_pointer][count_temp_string - 1] = -1;
+            }
+        }
         strcpy(exp_tokens_integer[temp_loop_integer_token_pointer], temp_string);
-        strcpy(exp_tokens_integer_inverted[temp_loop_integer_token_pointer], temp_string_inverted);
     }
 
     for(int temp_loop_token_pointer = 0; temp_loop_token_pointer < count_exp_tokens; temp_loop_token_pointer++){
@@ -195,7 +202,12 @@ int main()
         }
     }
     printf("\n - Inverted Integer Tokens : ");
-    for(int i = 0; i < count_exp_tokens_integer; i++) printf("%s ", exp_tokens_integer_inverted[i]);
+    for(int i = 0; i < count_exp_tokens_integer; i++) {
+        for(int j = 0; j < len_exp_tokens_integer[i]; j++) {
+            printf("%d", exp_tokens_integer_inverted[i][j]);
+        }
+        printf(" ");
+    }
     printf("\n - Token Count : %d\n - Integer Count : %d\n - Operator Count : %d\n - Command Count : %d\n - Variable Count : %d\n", count_exp_tokens, count_exp_tokens_integer, count_exp_tokens_operator, count_exp_tokens_variable, count_exp_tokens_command);
 
 raise_error:

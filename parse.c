@@ -271,15 +271,15 @@ int parse_to_token(char exp_raw[MAX_DIGIT_EXPRESSION + 5], char count_exp_raw,
 		
 		// 특이 케이스 핸들링
 		int current_token_type = exp_tokens[count_exp_tokens][0];
-		switch(current_token_type)
-		{
+        int integer_start;
+        switch(current_token_type) {
 			case TOKEN_NOTHING:
 				continue;
 			case TOKEN_UNKNOWN:
 				return FAIL;
 			case TOKEN_INTEGER:
 				// 어디까지 정수인지 확인
-				int integer_start = raw_pointer;
+				integer_start = raw_pointer;
 				for(; raw_pointer < count_exp_raw && is_digit_integer(exp_raw[raw_pointer]); raw_pointer++) {}
 				int integer_end = --raw_pointer;
 				

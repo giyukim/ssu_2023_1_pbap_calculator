@@ -1,16 +1,8 @@
-#include <stdio.h>
-#include <string.h>
+#ifndef __INT_OP_C__
+#define __INT_OP_C__
 
 
-#define MAX_STRING		101
-#define MAX_DIGIT 		30
-#define BINT_ARR_LEN	MAX_DIGIT+1
-
-#define SUCCESS			1
-#define FAIL			0
-
-#define POSITIVE		1
-#define NEGATIVE		-1
+#include "common.h"
 
 
 int big_int_lcomb(int, int[BINT_ARR_LEN], int, int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
@@ -23,7 +15,7 @@ void big_int_from(long long, int[BINT_ARR_LEN]);
 int big_int_len(int[BINT_ARR_LEN]);
 void big_int_copy(int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
 int big_int_fix(int, int[BINT_ARR_LEN]);
-int big_int_parse(int[MAX_STRING], int, int, int[BINT_ARR_LEN]); // TODO
+int big_int_parse(char[MAX_STRING], int, int, int[BINT_ARR_LEN]); // TODO
 void big_int_print(int[BINT_ARR_LEN]); // TODO
 void big_int_fprint(int[BINT_ARR_LEN]); // TODO
 
@@ -273,5 +265,13 @@ void big_int_print(int big_int[BINT_ARR_LEN])
 	{
 		printf("%d ", big_int[i]);
 	}
-	printf("\n");
 }
+
+int big_int_parse(char string[MAX_STRING], int start, int end, int result[BINT_ARR_LEN])
+{
+	// TODO: 임시 코드 수정하기
+	big_int_from(0, result);
+	return SUCCESS;
+}
+
+#endif

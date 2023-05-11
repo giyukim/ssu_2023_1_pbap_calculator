@@ -265,13 +265,24 @@ int big_int_len(int big_int[BINT_ARR_LEN])
 	return 0;
 }
 
+/**
+ * Made by 안현석
+ * @param big_int 큰 정수
+ */
 void big_int_print(int big_int[BINT_ARR_LEN])
 {
-	// TODO: 임시 코드 수정하기
-	printf("%+d, ", big_int[MAX_DIGIT]);
-	for(int i = MAX_DIGIT - 1; i >= 0; i--)
+	int len = big_int_len(len);
+    if (big_int[MAX_DIGIT] == NEGATIVE)
 	{
-		printf("%d ", big_int[i]);
-	}
-	printf("\n");
+        printf("-");
+        for (int i = 0; i < len; i++) {
+            printf("%d", big_int[i]);
+        }
+    }
+	else
+	{
+        for (int i = 0; i < len; i++) {
+            printf("%d", big_int[i]);
+        }
+    }
 }

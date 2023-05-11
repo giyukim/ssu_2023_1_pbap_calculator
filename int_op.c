@@ -263,8 +263,12 @@ int big_int_len(int big_int[BINT_ARR_LEN])
  */
 void big_int_print(int big_int[BINT_ARR_LEN])
 {
-	int len = big_int_len(len);
-	if (big_int[MAX_DIGIT] == NEGATIVE)
+	int len = big_int_len(big_int);
+	if(len == 0)
+	{
+		printf("0");
+	}
+	else if (big_int[MAX_DIGIT] == NEGATIVE)
 	{
 		printf("-");
 		for (int i = 0; i < len; i++) {

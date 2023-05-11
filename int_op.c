@@ -283,10 +283,44 @@ void big_int_print(int big_int[BINT_ARR_LEN])
 	}
 }
 
-int big_int_parse(char string[MAX_STRING], int start, int end, int result[BINT_ARR_LEN])
+/**
+ * Made by 안현석
+ * @param string 전체 수식 문자열
+ * @param start 문자열 시작
+ * @param end 문자열 끝
+ * @param result 큰 정수 결과
+ */
+int big_int_parse(char str[MAX_STRING], int start, int end, int result[BINT_ARR_LEN])
 {
-	// TODO: 임시 코드 수정하기
-	big_int_from(0, result);
+	if (start < 0 || end >= MAX_STRING || start > end)
+	{
+        return FAIL;
+    }
+
+	int temp_result[BINT_ARR_LEN], i = 0;
+	big_int_from(0, temp_result);
+
+	if(str[start] == '-')
+	{
+		temp_result[MAX_DIGIT] = NEGATIVE;
+		start++;
+	}
+
+	for(int j = start; j <= end; j++)
+	{
+		if(str[j] < '0' || str[j] > '9')
+		{
+			return FAIL;
+		}
+
+		if(i >= MAX_DIGIT)
+		{
+			return FAIL;
+		}
+		temp_result[i++] = str[j] - '0';
+	}
+
+	big_int_copy(temp_result, result);
 	return SUCCESS;
 }
 

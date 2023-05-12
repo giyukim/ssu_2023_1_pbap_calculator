@@ -8,3 +8,4 @@ desktop.ini
 /cmake-build-release/
 /CMakeLists.txt
 .vscode/*
+/test.c

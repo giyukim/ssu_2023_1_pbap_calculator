@@ -9,3 +9,4 @@ desktop.ini
 /CMakeLists.txt
 .vscode/*
 /test.c
+a.out

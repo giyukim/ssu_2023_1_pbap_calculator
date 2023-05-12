@@ -317,7 +317,7 @@ int eval_expression(int exp_tokens[MAX_TOKEN_COUNT][2],
             return FAIL;
         
         // 좌변으로 복사
-        big_int_copy(temp_result, variables[exp_tokens[0][1]]);
+        big_int_copy(temp_result, variables[exp_tokens[start][1]]);
         big_int_copy(temp_result, result);
         return SUCCESS;
     }

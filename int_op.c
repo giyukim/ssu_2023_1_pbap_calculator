@@ -249,7 +249,7 @@ int big_int_divmod(int x[BINT_ARR_LEN], int y[BINT_ARR_LEN],
 	x_copy[MAX_DIGIT] = x[MAX_DIGIT];
 
 	// !경고!
-	// 이 부분 좀 불안정함. 여기 이후로 x의 부호 값이 마음대로 바뀌는데,
+	// 이 부분 좀 불안정함. 여기 이후로 x의 부호 값이 이상하게 바뀌는데,
 	// 이러면 결과적으로 이상한 값이 출력될 수 있음.
 	// TODO: 왜 불안정한지 조사하기
 	big_int_copy(temp_div_result, div_result);

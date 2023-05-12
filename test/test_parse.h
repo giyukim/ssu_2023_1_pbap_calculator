@@ -65,7 +65,6 @@ void debug_print_tokens(int exp_tokens[MAX_TOKEN_COUNT][2],
 		}
 		printf("\n");
 	}
-	printf("\n");
 }
 
 #endif

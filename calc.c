@@ -8,14 +8,98 @@
 
 #define MAX_GROUP_COUNT     (MAX_DIGIT_EXPRESSION / 2 + 5)
 
-// NUMERALs
+// NUMERALs (항수)
 #define NUMERAL_NOTHING     (-1)    // 항수 오류
-#define NUMERAL_NULLINARY   0       // 0항?
+#define NUMERAL_NULLINARY   0       // "0항"
 #define NUMERAL_UNARY       1       // 단항
 #define NUMERAL_BINARY      2       // 이항
 
 #define LEVEL_NOTHING       (-1)    // 연산자 레벨 오류
-#define INVALID_INDEX       (-1)    // 인덱스 오류
+
+
+/**
+ * 연산자 -> 연산자 레벨 반환 함수
+ */
+int get_operator_level(int[2]);
+
+/**
+ * 연산자 레벨 -> 항수 변환 함수
+ */
+int level_to_numeral(int);
+
+/**
+ * 그룹 길이 반환 함수.
+ * [index][2] == LEVEL_NOTHING을 만족하는 가장 작은 index값이 있을 때,
+ * index을 리턴함
+ */
+int get_group_len(int[MAX_GROUP_COUNT][3]);
+
+/**
+ * 그룹 초기화 함수.
+ * 모든 index에 대해 [index][2] = LEVEL_NOTHING을 실행함
+ */
+void group_reset(int[MAX_GROUP_COUNT][3]);
+
+/**
+ * 토큰 그룹화 함수.
+ * 그룹 결과를 exp_groups에 저장.
+ * 실패 시 INVALID_INDEX 리턴.
+ */
+int group_expression(int exp_groups[MAX_GROUP_COUNT][3],
+                     int[MAX_TOKEN_COUNT][2],
+                     int, int);
+/**
+ * exp_token에 따라 토큰에 있는 큰 정수값 result로 복사
+ */
+int copy_from_number_type(int exp_token[2],
+                          int[MAX_TOKEN_COUNT][BINT_ARR_LEN],
+                          int[VARIABLE_COUNT][BINT_ARR_LEN],
+                          int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                          int result[BINT_ARR_LEN]);
+/**
+ * token_index를 포함하는 그룹 발견 시:
+ *  - result에 그룹 결과값 저장
+ *  - 해당 그룹의 끝 인덱스 반환.
+ * 아니면 INVALID_INDEX 반환
+ */
+int search_group_result(int token_index, int,
+                        int[MAX_GROUP_COUNT][3],
+                        int[MAX_GROUP_COUNT][BINT_ARR_LEN],
+                        int[BINT_ARR_LEN]);
+/**
+ * 이항 연산자 값인 operator_type에 따라:
+ *  - result = result (연산자) victim
+ * 단항이 올 경우 FAIL 리턴
+ */
+int operator_calculation(int operator_type, int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
+
+/**
+ * 그룹화된 토큰 계산
+ */
+int calculate_groups(int[MAX_TOKEN_COUNT][2],
+                     int[MAX_TOKEN_COUNT][BINT_ARR_LEN],
+                     int[VARIABLE_COUNT][BINT_ARR_LEN],
+                     int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                     int[MAX_GROUP_COUNT][3],
+                     int[MAX_GROUP_COUNT][BINT_ARR_LEN]);
+
+/**
+ * 수식 처리 및 계산.
+ * 커맨드 모드는 따로 핸들링하지 않으므로 커맨드 토큰 발견 시 SKIP 리턴
+ */
+int eval_expression(int[MAX_TOKEN_COUNT][2],
+                    int[MAX_TOKEN_COUNT][BINT_ARR_LEN],
+                    int[VARIABLE_COUNT][BINT_ARR_LEN],
+                    int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                    int, int,
+                    int[BINT_ARR_LEN]);
+
+/**
+ * 히스토리 저장 함수
+ */
+void update_history(int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                    int[BINT_ARR_LEN]);
+
 
 
 int get_operator_level(int exp_token[2])
@@ -27,19 +111,14 @@ int get_operator_level(int exp_token[2])
     switch(exp_token[1])
     {
         case OPERATOR_UNARY_PLUS:
-        case OPERATOR_UNARY_MINUS:
-            return 3;
+        case OPERATOR_UNARY_MINUS:  return 3;
         case OPERATOR_MULTIPLY:
         case OPERATOR_DIVDE:
-        case OPERATOR_MODULO:
-            return 2;
+        case OPERATOR_MODULO:       return 2;
         case OPERATOR_PLUS:
-        case OPERATOR_MINUS:
-            return 1;
-        case OPERATOR_ASSIGN:
-            return 0;
-        default:
-            return LEVEL_NOTHING;
+        case OPERATOR_MINUS:        return 1;
+        case OPERATOR_ASSIGN:       return 0;
+        default:                    return LEVEL_NOTHING;
     }
 }
 
@@ -72,12 +151,9 @@ void group_reset(int exp_groups[MAX_GROUP_COUNT][3])
     }
 }
 
-/**
- * 실패 시 INVALID_INDEX 리턴
- */
-int group_expression_recursive(int exp_groups[MAX_GROUP_COUNT][3],
-                               int exp_tokens[MAX_TOKEN_COUNT][2],
-                               int level, int start)
+int group_expression(int exp_groups[MAX_GROUP_COUNT][3],
+                     int exp_tokens[MAX_TOKEN_COUNT][2],
+                     int level, int start)
 {
     int end = start;
     if(level == get_operator_level(exp_tokens[start]) && is_unary_operator(exp_tokens[start]))
@@ -105,14 +181,14 @@ int group_expression_recursive(int exp_groups[MAX_GROUP_COUNT][3],
             // 현재 레벨 < 연산자 레벨 && 단항 연산자
             else if(is_unary_operator(exp_tokens[end]))
             {
-                end = group_expression_recursive(exp_groups, exp_tokens, level+1, end);
+                end = group_expression(exp_groups, exp_tokens, level+1, end);
                 if(end == INVALID_INDEX) return INVALID_INDEX;
             }
 
             // 현재 레벨 < 연산자 레벨 && 이항 연산자
             else
             {
-                end = group_expression_recursive(exp_groups, exp_tokens, level+1, end-1);
+                end = group_expression(exp_groups, exp_tokens, level+1, end-1);
                 if(end == INVALID_INDEX) return INVALID_INDEX;
             }
         }
@@ -125,7 +201,6 @@ int group_expression_recursive(int exp_groups[MAX_GROUP_COUNT][3],
     exp_groups[group_length][2] = level;
     return end;
 }
-
 
 void debug_print_groups(int exp_groups[MAX_GROUP_COUNT][3],
                         int exp_groups_result[MAX_GROUP_COUNT][BINT_ARR_LEN])
@@ -145,18 +220,13 @@ void debug_print_groups(int exp_groups[MAX_GROUP_COUNT][3],
         big_int_print(exp_groups_result[i]);
         printf("\n");
     }
-    printf("\n");
 }
 
-
-/**
- * TODO: 이름 바꾸기; big_int_copy랑 헷갈릴 수 있음
- */
-int copy_big_int_value(int exp_token[2],
-                       int exp_tokens_integer[MAX_TOKEN_COUNT][BINT_ARR_LEN],
-                       int variables[VARIABLE_COUNT][BINT_ARR_LEN],
-                       int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
-                       int result[BINT_ARR_LEN])
+int copy_from_number_type(int exp_token[2],
+                          int exp_tokens_integer[MAX_TOKEN_COUNT][BINT_ARR_LEN],
+                          int variables[VARIABLE_COUNT][BINT_ARR_LEN],
+                          int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                          int result[BINT_ARR_LEN])
 {
     switch(exp_token[0])
     {
@@ -173,10 +243,6 @@ int copy_big_int_value(int exp_token[2],
     return FAIL;
 }
 
-
-/**
- * 포함하는 그룹 발견 시 해당 그룹의 끝 인덱스 반환. 아니면 INVALID_INDEX 반환
- */
 int search_group_result(int token_index, int group_index,
                         int exp_groups[MAX_GROUP_COUNT][3],
                         int exp_groups_result[MAX_GROUP_COUNT][BINT_ARR_LEN],
@@ -196,10 +262,6 @@ int search_group_result(int token_index, int group_index,
     return INVALID_INDEX;
 }
 
-
-/**
- * result (연산자)= victim
- */
 int operator_calculation(int operator_type, int victim[BINT_ARR_LEN], int result[BINT_ARR_LEN])
 {
     int dummy[BINT_ARR_LEN];
@@ -223,7 +285,6 @@ int operator_calculation(int operator_type, int victim[BINT_ARR_LEN], int result
     }
 }
 
-
 int calculate_groups(int exp_tokens[MAX_TOKEN_COUNT][2],
                      int exp_tokens_integer[MAX_TOKEN_COUNT][BINT_ARR_LEN],
                      int variables[VARIABLE_COUNT][BINT_ARR_LEN],
@@ -245,7 +306,7 @@ int calculate_groups(int exp_tokens[MAX_TOKEN_COUNT][2],
             int unary_operator_type = exp_tokens[start][1];
             
             // 숫자 토큰의 큰 정수값 복사
-            if(copy_big_int_value(exp_tokens[start+1], exp_tokens_integer, variables, history_variables, result_big_int) == FAIL)
+            if(copy_from_number_type(exp_tokens[start+1], exp_tokens_integer, variables, history_variables, result_big_int) == FAIL)
                 return FAIL;
             
             // 만약 부호가 "-"일 경우
@@ -281,7 +342,7 @@ int calculate_groups(int exp_tokens[MAX_TOKEN_COUNT][2],
                 if(new_index == INVALID_INDEX)
                 {
                     // 숫자 토큰의 큰 정수값 복사
-                    if(copy_big_int_value(exp_tokens[token_index], exp_tokens_integer, variables, history_variables, temp_big_int) == FAIL)
+                    if(copy_from_number_type(exp_tokens[token_index], exp_tokens_integer, variables, history_variables, temp_big_int) == FAIL)
                         return FAIL;
                 }
                 else
@@ -299,7 +360,6 @@ int calculate_groups(int exp_tokens[MAX_TOKEN_COUNT][2],
         big_int_copy(result_big_int, exp_groups_result[group_index]);
     }
 }
-
 
 int eval_expression(int exp_tokens[MAX_TOKEN_COUNT][2],
                     int exp_tokens_integer[MAX_TOKEN_COUNT][BINT_ARR_LEN],
@@ -321,8 +381,8 @@ int eval_expression(int exp_tokens[MAX_TOKEN_COUNT][2],
         big_int_copy(temp_result, result);
         return SUCCESS;
     }
-    // 아니면 일반 수식 모드
 
+    // 아니면 일반 수식 모드
     for(int i = start; i <= end; i++)
     {
         // 만약 대입 연산자가 있을 경우
@@ -331,7 +391,7 @@ int eval_expression(int exp_tokens[MAX_TOKEN_COUNT][2],
         
         // 만약 커맨드 토큰이 있을 경우
         if(exp_tokens[i][0] == TOKEN_COMMAND)
-            return FAIL;
+            return SKIP;
     }
 
     // { {start1, end1, level1}, {start2, end2, level2}, ..., {startn, endn, LEVEL_NOTHING} }
@@ -340,7 +400,7 @@ int eval_expression(int exp_tokens[MAX_TOKEN_COUNT][2],
     group_reset(exp_groups);
 
     // 토큰 그룹화
-    if(group_expression_recursive(exp_groups, exp_tokens, 0, start) == INVALID_INDEX)
+    if(group_expression(exp_groups, exp_tokens, 0, start) == INVALID_INDEX)
         return FAIL;
     
     // 그룹 계산
@@ -351,11 +411,23 @@ int eval_expression(int exp_tokens[MAX_TOKEN_COUNT][2],
     // 마지막 그룹 계산 결과 -> 결과값으로 복사
     big_int_copy(exp_groups_result[exp_groups_len - 1], result);
 
+    // 히스토리 업데이트
+    update_history(history_variables, result);
+
     // <디버그>
     debug_print_groups(exp_groups, exp_groups_result);
     // </디버그>
     return SUCCESS;
 }
 
+void update_history(int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                    int eval_result[BINT_ARR_LEN])
+{
+    for(int i = HISTORY_VARIABLE_COUNT - 2; i >= 0; i--)
+    {
+        big_int_copy(history_variables[i], history_variables[i+1]);
+    }
+    big_int_copy(eval_result, history_variables[0]);
+}
 
 #endif

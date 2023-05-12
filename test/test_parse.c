@@ -14,7 +14,7 @@ int main(void)
 		
 		int exp_tokens[MAX_TOKEN_COUNT][2];
 		int exp_tokens_integer[MAX_TOKEN_COUNT][BINT_ARR_LEN] = {0};
-		int result[BINT_ARR_LEN];
+		int result[BINT_ARR_LEN], function_result;
 		
 		// 입력 문자열
 		int count_exp_raw = 0, op;
@@ -43,14 +43,21 @@ int main(void)
 
 		// 토큰 계산
 		int token_len = get_token_len(exp_tokens);
-		if(eval_expression(exp_tokens, exp_tokens_integer, variables, history_variables, 0, token_len - 1, result) == FAIL)
+		if((function_result = eval_expression(exp_tokens, exp_tokens_integer, variables, history_variables, 0, token_len - 1, result)) != SKIP)
 		{
-			error = 1;
-			goto raise_error;
+			if(function_result == FAIL)
+			{
+				error = 1;
+				goto raise_error;
+			}
+		}
+		else if(0)
+		{
+			// 여기에 커맨드 핸들링
 		}
 		printf(">>>>> ");
 		big_int_print(result);
-		printf("\n");
+		printf("\n\n");
 		
 raise_error:
 		if(error) printf("error\n\n");

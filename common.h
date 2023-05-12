@@ -18,6 +18,8 @@
 #define POSITIVE                1
 #define NEGATIVE                (-1)
 
+#define INVALID_INDEX           (-1)
+
 // TOKEN types
 #define TOKEN_INTEGER           0
 #define TOKEN_OPERATOR          1

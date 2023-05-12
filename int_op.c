@@ -15,8 +15,8 @@ void big_int_from(long long, int[BINT_ARR_LEN]);
 int big_int_len(int[BINT_ARR_LEN]);
 void big_int_copy(int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
 int big_int_fix(int, int[BINT_ARR_LEN]);
-int big_int_parse(char[MAX_STRING], int, int, int[BINT_ARR_LEN]); // TODO
-void big_int_print(int[BINT_ARR_LEN]); // TODO
+int big_int_parse(char[MAX_STRING], int, int, int[BINT_ARR_LEN]);
+void big_int_print(int[BINT_ARR_LEN]);
 void big_int_fprint(int[BINT_ARR_LEN]); // TODO
 
 
@@ -149,11 +149,13 @@ int big_int_shift(int amount, int source[BINT_ARR_LEN], int dest[BINT_ARR_LEN])
 
 int big_int_times(int factor, int source[BINT_ARR_LEN], int dest[BINT_ARR_LEN])
 {
-	if(factor < 0 || factor > 9)
+	_Bool negative_factor = factor < 0;
+	if(negative_factor) factor = -factor;
+	if(factor > 9)
 		return FAIL;
 	
 	int temp_result[BINT_ARR_LEN];
-	temp_result[MAX_DIGIT] = source[MAX_DIGIT];
+	temp_result[MAX_DIGIT] = source[MAX_DIGIT] * (negative_factor ? -1 : 1);
 	for(int i = 0; i < MAX_DIGIT; i++)
 	{
 		temp_result[i] = factor * source[i];
@@ -209,8 +211,11 @@ int big_int_divmod(int x[BINT_ARR_LEN], int y[BINT_ARR_LEN],
 	big_int_copy(x, x_copy);
 	x_copy[MAX_DIGIT] = POSITIVE;
 
-	// 흔히 쓰는 나눗셈 방법: 자리 옮겨가면서 나누는 수보다 작아질 때까지 빼기
 	int x_len = big_int_len(x), y_len = big_int_len(y);
+	// y == 0 -> 에러
+	if(y_len == 0) return FAIL;
+
+	// 흔히 쓰는 나눗셈 방법: 자리 옮겨가면서 나누는 수보다 작아질 때까지 빼기
 	for(int i = x_len - y_len; i >= 0; i--)
 	{
 		// temp_big_int = y
@@ -239,12 +244,16 @@ int big_int_divmod(int x[BINT_ARR_LEN], int y[BINT_ARR_LEN],
 		temp_div_result[i] = divisor_digit - 1;
 	}
 
+	// 연산 도중 실패할 수 있으므로 부호는 나중에 저장
+	temp_div_result[MAX_DIGIT] = x[MAX_DIGIT] * y[MAX_DIGIT];
+	x_copy[MAX_DIGIT] = x[MAX_DIGIT];
+
+	// !경고!
+	// 이 부분 좀 불안정함. 여기 이후로 x의 부호 값이 마음대로 바뀌는데,
+	// 이러면 결과적으로 이상한 값이 출력될 수 있음.
+	// TODO: 왜 불안정한지 조사하기
 	big_int_copy(temp_div_result, div_result);
 	big_int_copy(x_copy, mod_result); // 이 때의 x_copy는 나머지 값이므로 mod_result로 복사
-	
-	// 연산 도중 실패할 수 있으므로 부호는 나중에 저장
-	div_result[MAX_DIGIT] = x[MAX_DIGIT] * y[MAX_DIGIT];
-	mod_result[MAX_DIGIT] = x[MAX_DIGIT];
 	return SUCCESS;
 }
 
@@ -267,18 +276,18 @@ void big_int_print(int big_int[BINT_ARR_LEN])
 	if(len == 0)
 	{
 		printf("0");
+		return;
 	}
-	else if (big_int[MAX_DIGIT] == NEGATIVE)
+	
+	if (big_int[MAX_DIGIT] == NEGATIVE)
 	{
 		printf("-");
-		for (int i = 0; i < len; i++) {
-			printf("%d", big_int[i]);
-		}
 	}
-	else
-	{
-		for (int i = 0; i < len; i++) {
-			printf("%d", big_int[i]);
+	for (int i = len - 1; i >= 0; i--) {
+		printf("%d", big_int[i]);
+		if(i != 0 && i % 3 == 0)
+		{
+			printf(",");	
 		}
 	}
 }
@@ -297,7 +306,7 @@ int big_int_parse(char str[MAX_STRING], int start, int end, int result[BINT_ARR_
         return FAIL;
     }
 
-	int temp_result[BINT_ARR_LEN], i = 0;
+	int temp_result[BINT_ARR_LEN], i;
 	big_int_from(0, temp_result);
 
 	if(str[start] == '-')
@@ -308,16 +317,12 @@ int big_int_parse(char str[MAX_STRING], int start, int end, int result[BINT_ARR_
 
 	for(int j = start; j <= end; j++)
 	{
-		if(str[j] < '0' || str[j] > '9')
-		{
-			return FAIL;
-		}
+		char digit = str[j];
+		if(digit < '0' || digit > '9') return FAIL;
 
-		if(i >= MAX_DIGIT)
-		{
-			return FAIL;
-		}
-		temp_result[i++] = str[j] - '0';
+		int i = end - j;
+		if(i >= MAX_DIGIT) return FAIL;
+		temp_result[i] = str[j] - '0';
 	}
 
 	big_int_copy(temp_result, result);

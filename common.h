@@ -38,6 +38,7 @@
 #define OPERATOR_DIVDE          5
 #define OPERATOR_MODULO         6
 #define OPERATOR_ASSIGN         7
+#define OPERATOR_NOTHING        (-1)
 
 // TOKEN_COMMANDs
 #define COMMAND_HISTORY         0
@@ -46,5 +47,8 @@
 #define COMMAND_RESET           3
 #define COMMAND_SAVE            4
 #define COMMAND_QUIT            5
+
+#define VARIABLE_COUNT          5
+#define HISTORY_VARIABLE_COUNT  3
 
 #endif

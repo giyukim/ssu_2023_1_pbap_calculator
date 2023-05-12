@@ -9,6 +9,7 @@
 _Bool is_digit_integer(char);
 _Bool is_number_type(int[2]);
 _Bool is_unary_operator(int[2]);
+_Bool is_assign_operator(int[2]);
 
 int assign_token_operator(char, int[2], _Bool);
 int assign_token_command(char, int[2]);
@@ -18,6 +19,7 @@ int assign_token(char, int[MAX_TOKEN_COUNT][2], int);
 int parse_to_token(char[MAX_STRING], char,
                    int[MAX_TOKEN_COUNT][2],
                    int[MAX_TOKEN_COUNT][BINT_ARR_LEN]);
+int get_token_len(int[MAX_TOKEN_COUNT][2]);
 
 
 _Bool is_digit_integer(char target)
@@ -35,6 +37,11 @@ _Bool is_unary_operator(int exp_token[2])
 {
 	return exp_token[0] == TOKEN_OPERATOR &&
 			(exp_token[1] == OPERATOR_UNARY_PLUS || exp_token[1] == OPERATOR_UNARY_MINUS);
+}
+
+_Bool is_assign_operator(int exp_token[2])
+{
+	return exp_token[0] == TOKEN_OPERATOR && exp_token[1] == OPERATOR_ASSIGN;
 }
 
 int assign_token_operator(char target, int exp_token[2], _Bool is_unary)
@@ -76,7 +83,7 @@ int assign_token_variable(char target, int exp_token[2])
 {
 	exp_token[0] = TOKEN_VARIABLE;
 	char target_upper = (char) toupper(target);
-	// 변수는 5개밖에 없으니까 간단하게 switch로 생각
+	// 변수는 VARIABLE_COUNT개밖에 없으니까 간단하게 switch로 생각
 	switch(target_upper)
 	{
 		case 'A': exp_token[1] = 0; return SUCCESS;
@@ -213,7 +220,7 @@ int parse_to_token(char exp_raw[MAX_STRING], char count_exp_raw,
 				
 				// h1, h2, h3 아니면 COMMAND_HISTORY
 				int history_number = exp_raw[raw_pointer + 1] - '0';
-				if(history_number < 1 || history_number > 3)
+				if(history_number < 1 || history_number > HISTORY_VARIABLE_COUNT)
 				{
 					exp_tokens[count_exp_tokens][0] = TOKEN_COMMAND;
 					exp_tokens[count_exp_tokens][1] = COMMAND_HISTORY;
@@ -263,6 +270,15 @@ int parse_to_token(char exp_raw[MAX_STRING], char count_exp_raw,
 	exp_tokens[count_exp_tokens][0] = TOKEN_END;
 
 	return SUCCESS;
+}
+
+int get_token_len(int exp_tokens[MAX_TOKEN_COUNT][2])
+{
+	for(int i = 0; i < MAX_TOKEN_COUNT; i++)
+	{
+		if(exp_tokens[i][0] == TOKEN_END) return i;
+	}
+	return MAX_TOKEN_COUNT;
 }
 
 #endif

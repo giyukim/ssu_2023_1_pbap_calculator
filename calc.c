@@ -359,6 +359,8 @@ int calculate_groups(int exp_tokens[MAX_TOKEN_COUNT][2],
         // 결과값을 그룹 결과값으로 복사
         big_int_copy(result_big_int, exp_groups_result[group_index]);
     }
+    
+    return SUCCESS;
 }
 
 int eval_expression(int exp_tokens[MAX_TOKEN_COUNT][2],

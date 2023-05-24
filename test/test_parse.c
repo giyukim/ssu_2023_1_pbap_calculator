@@ -1,5 +1,5 @@
-#include "test_parse.h"
 #include "../calc.c"
+
 
 int main(void)
 {
@@ -37,13 +37,9 @@ int main(void)
 			goto raise_error;
 		}
 
-		// <디버깅>
-		debug_print_tokens(exp_tokens, exp_tokens_integer);
-		// </디버깅>
-
 		// 토큰 계산
 		int token_len = get_token_len(exp_tokens);
-		if((function_result = eval_expression(exp_tokens, exp_tokens_integer, variables, history_variables, 0, token_len - 1, result)) != SKIP)
+		if((function_result = eval_exp_tokens(exp_tokens, exp_tokens_integer, variables, history_variables, 0, token_len - 1, result)) != SKIP)
 		{
 			if(function_result == FAIL)
 			{

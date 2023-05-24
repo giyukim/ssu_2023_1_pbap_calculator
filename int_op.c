@@ -16,6 +16,7 @@ int big_int_len(int[BINT_ARR_LEN]);
 void big_int_copy(int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
 int big_int_fix(int, int[BINT_ARR_LEN]);
 int big_int_parse(char[MAX_STRING], int, int, int[BINT_ARR_LEN]);
+void big_int_tostring(int[BINT_ARR_LEN], char[MAX_STRING]);
 void big_int_print(int[BINT_ARR_LEN]);
 
 
@@ -266,29 +267,39 @@ int big_int_len(int big_int[BINT_ARR_LEN])
 }
 
 /**
- * Made by 안현석
+ * Made by 안현석, 김민재
  * @param big_int 큰 정수
  */
-void big_int_print(int big_int[BINT_ARR_LEN])
+void big_int_tostring(int big_int[BINT_ARR_LEN],
+					  char result[MAX_STRING])
 {
 	int len = big_int_len(big_int);
 	if(len == 0)
 	{
-		printf("0");
+		strcpy(result, "0");
 		return;
 	}
-	
+
+	int str_len = 0;
 	if (big_int[MAX_DIGIT] == NEGATIVE)
 	{
-		printf("-");
+		result[str_len++] = '-';
 	}
 	for (int i = len - 1; i >= 0; i--) {
-		printf("%d", big_int[i]);
+		result[str_len++] = big_int[i] + '0';
 		if(i != 0 && i % 3 == 0)
 		{
-			printf(",");	
+			result[str_len++] = ',';	
 		}
 	}
+	result[str_len] = '\0';
+}
+
+void big_int_print(int big_int[BINT_ARR_LEN])
+{
+	char string[MAX_STRING];
+	big_int_tostring(big_int, string);
+	printf("%s", string);
 }
 
 /**

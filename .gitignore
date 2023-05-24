@@ -1,5 +1,7 @@
 # /test.c
 test*.exe
+*.exe
+cal.txt
 -_*
 desktop.ini
 /.idea/

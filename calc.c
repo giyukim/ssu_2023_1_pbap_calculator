@@ -84,10 +84,10 @@ int calculate_groups(int[MAX_TOKEN_COUNT][2],
                      int[MAX_GROUP_COUNT][BINT_ARR_LEN]);
 
 /**
- * 수식 처리 및 계산.
+ * 토큰화된 수식 처리 및 계산.
  * 커맨드 모드는 따로 핸들링하지 않으므로 커맨드 토큰 발견 시 SKIP 리턴
  */
-int eval_expression(int[MAX_TOKEN_COUNT][2],
+int eval_exp_tokens(int[MAX_TOKEN_COUNT][2],
                     int[MAX_TOKEN_COUNT][BINT_ARR_LEN],
                     int[VARIABLE_COUNT][BINT_ARR_LEN],
                     int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
@@ -205,6 +205,8 @@ int group_expression(int exp_groups[MAX_GROUP_COUNT][3],
 void debug_print_groups(int exp_groups[MAX_GROUP_COUNT][3],
                         int exp_groups_result[MAX_GROUP_COUNT][BINT_ARR_LEN])
 {
+    if(!DEBUG) return;
+
 	printf("Groups : \n");
     for(int i = 0; exp_groups[i][2] != NUMERAL_NOTHING; i++)
     {
@@ -363,7 +365,7 @@ int calculate_groups(int exp_tokens[MAX_TOKEN_COUNT][2],
     return SUCCESS;
 }
 
-int eval_expression(int exp_tokens[MAX_TOKEN_COUNT][2],
+int eval_exp_tokens(int exp_tokens[MAX_TOKEN_COUNT][2],
                     int exp_tokens_integer[MAX_TOKEN_COUNT][BINT_ARR_LEN],
                     int variables[VARIABLE_COUNT][BINT_ARR_LEN],
                     int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
@@ -375,7 +377,7 @@ int eval_expression(int exp_tokens[MAX_TOKEN_COUNT][2],
     {
         int temp_result[BINT_ARR_LEN];
         // 우변을
-        if(eval_expression(exp_tokens, exp_tokens_integer, variables, history_variables, start + 2, end, temp_result) == FAIL)
+        if(eval_exp_tokens(exp_tokens, exp_tokens_integer, variables, history_variables, start + 2, end, temp_result) == FAIL)
             return FAIL;
         
         // 좌변으로 복사
@@ -419,6 +421,7 @@ int eval_expression(int exp_tokens[MAX_TOKEN_COUNT][2],
     // <디버그>
     debug_print_groups(exp_groups, exp_groups_result);
     // </디버그>
+    
     return SUCCESS;
 }
 

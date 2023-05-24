@@ -19,13 +19,14 @@ int status_load(int [5][BINT_ARR_LEN], int [3][BINT_ARR_LEN]);                  
 
 void big_int_fprint(int source[BINT_ARR_LEN], char dest[BINT_ARR_LEN])
 {
-    for(int temp_loop_original = 0; temp_loop_original <= big_int_len(source); temp_loop_original++) dest[temp_loop_original] = (char)(source[temp_loop_original] + '0');
-    if(source[MAX_DIGIT] == +1) dest[big_int_len(source) + 1] = '+';
-    else if(source[MAX_DIGIT] == -1) dest[big_int_len(source) + 1] = '-';
+    for(int temp_loop_original = 0; temp_loop_original < big_int_len(source); temp_loop_original++) dest[temp_loop_original] = (char)(source[temp_loop_original] + '0');
+    if(source[MAX_DIGIT] == +1) dest[big_int_len(source)] = '+';
+    else if(source[MAX_DIGIT] == -1) dest[big_int_len(source)] = '-';
 }
 
 void big_int_tointeger(char source[BINT_ARR_LEN], int dest[BINT_ARR_LEN])
 {
+    big_int_from(0, dest);
     for(int temp_loop_original = 0; temp_loop_original < strlen(source) - 1; temp_loop_original++) dest[temp_loop_original] = (int)(source[temp_loop_original]) - '0';
     if(source[strlen(source) - 1] == '+') dest[MAX_DIGIT] = +1;
     else if(source[strlen(source) - 1] == '-') dest[MAX_DIGIT] = -1;

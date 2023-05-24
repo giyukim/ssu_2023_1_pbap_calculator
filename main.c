@@ -1,95 +1,144 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
+#include "common.h"
+#include "int_op.c"
+#include "parse.c"
+#include "calc.c"
+#include "command.c"
 
-#define true 1 //True == 1
-#define false 0 //False == 0
 
-#define MAX_DIGIT_EXPRESSION 100 // max digit of expression
-#define MAX_DIGIT_INTEGER 30     // max digit of one integer
 
-void draw_map(char a[], char b[], char c[], char d[], char e[]){
-    int count_a = strlen(a), count_b = strlen(b), count_c = strlen(c), count_d = strlen(d), count_e = strlen(e);
-    printf("************************************************************************\n");
-    printf("                               큰정수계산기\n");
-    printf("************************************************************************\n");
-    printf("* 변 수\n");
-    printf("************************************************************************\n");
-    if(count_a == 0) printf("a = 0\n");
-    else printf("a = %s\n", a);
-    if(count_b == 0) printf("b = 0\n");
-    else printf("b = %s\n", b);
-    if(count_c == 0) printf("c = 0\n");
-    else printf("c = %s\n", c);
-    if(count_d == 0) printf("d = 0\n");
-    else printf("d = %s\n", d);
-    if(count_e == 0) printf("e = 0\n");
-    else printf("e = %s\n", e);
-    printf("************************************************************************\n");
-    printf("Help : H(istory) L(oad) R(efresh) (rese)T S(ave) Q(uit)\n"); // Reflesh? -> Refresh
-    printf("************************************************************************\n");
-}
-
-_Bool is_blank(char target)
+int eval_expression(char exp_raw[MAX_STRING],
+                    int variables[VARIABLE_COUNT][BINT_ARR_LEN],
+                    int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                    char line_result[MAX_STRING],
+                    int command_result[1])
 {
-    if(target == ' ') return true;
-    return false;
+    int count_exp_raw = strlen(exp_raw);
+    int exp_tokens[MAX_TOKEN_COUNT][2];
+    int exp_tokens_integer[MAX_TOKEN_COUNT][BINT_ARR_LEN] = {0};
+    int big_int_result[BINT_ARR_LEN], function_result;
+
+    // 문자열 -> 토큰
+    if(parse_to_token(exp_raw, count_exp_raw, exp_tokens, exp_tokens_integer) == FAIL)
+        return FAIL;
+
+    // 토큰 계산 및 실행
+    int token_len = get_token_len(exp_tokens);
+    if((function_result = eval_exp_tokens(exp_tokens, exp_tokens_integer, variables, history_variables, 0, token_len - 1, big_int_result)) != SKIP)
+    {
+        if(function_result == FAIL)
+            return FAIL;
+        big_int_tostring(big_int_result, line_result);
+        command_result[0] = COMMAND_NOTHING;
+        return SUCCESS;
+    }
+    // 커맨드 핸들링
+    else if(token_validate_command(exp_tokens))
+    {
+        command_result[0] = exp_tokens[0][1];
+        return SUCCESS;
+    }
+    return FAIL;
 }
 
-_Bool is_integer(char target) // Judge character target is integer(0~9)
+
+void append_line(int lines_type[MAX_LINE_COUNT],
+                 char lines[MAX_LINE_COUNT][MAX_STRING],
+                 int incoming_type,
+                 char incoming_line[MAX_STRING])
 {
-    if(target >= 48 && target <= 57) return true;
-    return false;
+    int line_count = 0;
+    for(; line_count < MAX_LINE_COUNT; line_count++)
+    {
+        if(lines_type[line_count] == LINE_TYPE_NOTHING)
+            break;
+    }
+
+    if(line_count == MAX_LINE_COUNT)
+    {
+        for(int i = 0; i < MAX_LINE_COUNT - 1; i++)
+        {
+            lines_type[i] = lines_type[i+1];
+            strcpy(lines[i], lines[i+1]);
+        }
+        line_count = MAX_LINE_COUNT - 1;
+    }
+    lines_type[line_count] = incoming_type;
+    strcpy(lines[line_count], incoming_line);
 }
 
-_Bool is_operator(char target) // Judge character target is operator(+-*/%)
-{
-    if(target == '*' || target == '/' || target == '%' || target == '+' || target == '-' || target == '=') return true;
-    return false;
-}
-
-_Bool is_command(char target)  // Judge character target is command(lrtsqh)
-{
-    char target_upper = (char)toupper(target);
-    if(target_upper == 'L' || target_upper == 'R' || target_upper == 'T' || target_upper == 'S' || target_upper == 'Q' || target_upper == 'H') return true;
-    return false;
-}
-
-_Bool is_variable(char target)
-{
-    char target_upper = (char)toupper(target);
-    if(target_upper >= 65 && target_upper <= 69) return true;
-    return false;
-}
-
-void print_result(char message[])
-{
-    printf("======> %s", message);
-}
 
 int main() {
-    char variable_a[MAX_DIGIT_INTEGER + 2] = {0}, variable_b[MAX_DIGIT_INTEGER + 2] = {0}, variable_c[MAX_DIGIT_INTEGER + 2] = {0}, variable_d[MAX_DIGIT_INTEGER + 2] = {0}, variable_e[MAX_DIGIT_INTEGER + 2] = {0}; // Variable
-    char exp_raw[MAX_DIGIT_EXPRESSION + 5] = {0};
-    int count_exp_raw = 0;
-    int exp_tokens[MAX_DIGIT_EXPRESSION + 1][2]; /*
-     * Format : {{Type, Index}, }
-     * Type :
-     *  - 0 : Integer
-     *  - 1 : Operator
-     *  - 2 : Command
-     *  - 3 : Variable
-     */
-    int count_exp_tokens = 0;
-    char exp_tokens_integer[MAX_DIGIT_EXPRESSION + 1][MAX_DIGIT_EXPRESSION + 2], exp_tokens_operator[MAX_DIGIT_EXPRESSION + 1], exp_tokens_command[MAX_DIGIT_EXPRESSION + 1], exp_tokens_variable[MAX_DIGIT_EXPRESSION + 1];
-    int count_exp_tokens_integer = 0, count_exp_tokens_operator = 0, count_exp_tokens_command = 0, count_exp_tokens_variable = 0;
-    char exp_tokens_integer_inverted[MAX_DIGIT_EXPRESSION + 1][MAX_DIGIT_EXPRESSION + 2];
-    _Bool error = false;
+    int variables[VARIABLE_COUNT][BINT_ARR_LEN];
+    int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN];
+    int lines_type[MAX_LINE_COUNT], command_result[1];
+    char lines[MAX_LINE_COUNT][MAX_STRING], exp_raw[MAX_STRING], str_result[MAX_STRING];
+    _Bool loop = 1;
 
-    draw_map(variable_a, variable_b, variable_c, variable_d, variable_e);
+    command_reset(variables, history_variables, lines_type);
+    lines_type[0] = LINE_TYPE_NOTHING;
 
+    while(loop)
+    {
+        _Bool error = 0;
+
+        clear_screen();
+        draw_main(variables, lines_type, lines);
+        await_input(exp_raw);
+        append_line(lines_type, lines, LINE_TYPE_INPUT, exp_raw);
+
+        if(eval_expression(exp_raw, variables, history_variables, str_result, command_result) == FAIL)
+        {
+            error = 1;
+            goto raise_error;
+        }
+
+        switch(command_result[0])
+        {
+            case COMMAND_HISTORY:
+                command_history(history_variables, str_result, 0);
+                append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
+                command_history(history_variables, str_result, 1);
+                append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
+                command_history(history_variables, str_result, 2);
+                append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
+                continue;
+            case COMMAND_SAVE:
+                if(command_save(variables, history_variables) == FAIL)
+                {
+                    error = 1;
+                    goto raise_error;
+                }
+                strcpy(str_result, "cal.txt에 저장");
+                break;
+            case COMMAND_LOAD:
+                if(command_load(variables, history_variables) == FAIL)
+                {
+                    error = 1;
+                    goto raise_error;
+                }
+                command_refresh(lines_type);
+                strcpy(str_result, "cal.txt로부터 복구");
+                break;
+            case COMMAND_REFRESH:
+                command_refresh(lines_type);
+                continue;
+            case COMMAND_RESET:
+                command_reset(variables, history_variables, lines_type);
+                continue;
+            case COMMAND_NOTHING:
+                break;
+            case COMMAND_QUIT:
+                printf("======> bye\n");
+                loop = 0;
+                break;
+            default:
+                error = 1;
+                goto raise_error;
+        }
 
 raise_error:
-    if(error == true) print_result("error");
+        if(error) strcpy(str_result, "error");
 
-    return 0;
+        append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
+    }
 }

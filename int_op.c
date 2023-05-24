@@ -17,7 +17,6 @@ void big_int_copy(int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
 int big_int_fix(int, int[BINT_ARR_LEN]);
 int big_int_parse(char[MAX_STRING], int, int, int[BINT_ARR_LEN]);
 void big_int_print(int[BINT_ARR_LEN]);
-void big_int_fprint(int[BINT_ARR_LEN]); // TODO
 
 
 void big_int_from(long long value, int result[BINT_ARR_LEN])

@@ -16,9 +16,7 @@ int assign_token_command(char, int[2]);
 int assign_token_variable(char, int[2]);
 int assign_token(char, int[MAX_TOKEN_COUNT][2], int);
 
-int parse_to_token(char[MAX_STRING], char,
-                   int[MAX_TOKEN_COUNT][2],
-                   int[MAX_TOKEN_COUNT][BINT_ARR_LEN]);
+int parse_to_token(char[MAX_STRING], char, int[MAX_TOKEN_COUNT][2], int[MAX_TOKEN_COUNT][BINT_ARR_LEN]);
 int get_token_len(int[MAX_TOKEN_COUNT][2]);
 
 

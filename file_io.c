@@ -6,7 +6,7 @@
 
 #define MAX_FILENAME_STRING 16
 
-void big_int_tostring(int [BINT_ARR_LEN], char [BINT_ARR_LEN]);                 // To String
+void big_int_fprint(int [BINT_ARR_LEN], char [BINT_ARR_LEN]);                 // To String
 void big_int_tointeger(char [BINT_ARR_LEN], int [BINT_ARR_LEN]);                // TO Intger
 
 int file_io_write_new(char [MAX_FILENAME_STRING], char [][MAX_STRING], int);    // 새로운 파일로 출력
@@ -15,16 +15,20 @@ int file_io_read(char [MAX_FILENAME_STRING], int, char [][MAX_STRING]);         
 int file_remove(char [MAX_FILENAME_STRING]);                                    // 파일 삭제
 
 int status_save(int [5][BINT_ARR_LEN], int [3][BINT_ARR_LEN]);                  // 상태 저장
-void status_load(int [5][BINT_ARR_LEN], int [3][BINT_ARR_LEN]);                 // 상태 로드
+int status_load(int [5][BINT_ARR_LEN], int [3][BINT_ARR_LEN]);                  // 상태 로드
 
-void big_int_tostring(int source[BINT_ARR_LEN], char dest[BINT_ARR_LEN])
+void big_int_fprint(int source[BINT_ARR_LEN], char dest[BINT_ARR_LEN])
 {
     for(int temp_loop_original = 0; temp_loop_original <= big_int_len(source); temp_loop_original++) dest[temp_loop_original] = (char)(source[temp_loop_original] + '0');
+    if(source[MAX_DIGIT] == +1) dest[big_int_len(source) + 1] = '+';
+    else if(source[MAX_DIGIT] == -1) dest[big_int_len(source) + 1] = '-';
 }
 
 void big_int_tointeger(char source[BINT_ARR_LEN], int dest[BINT_ARR_LEN])
 {
-    for(int temp_loop_original = 0; temp_loop_original < strlen(source); temp_loop_original++) dest[temp_loop_original] = (int)(source[temp_loop_original]) - '0';
+    for(int temp_loop_original = 0; temp_loop_original < strlen(source) - 1; temp_loop_original++) dest[temp_loop_original] = (int)(source[temp_loop_original]) - '0';
+    if(source[strlen(source) - 1] == '+') dest[MAX_DIGIT] = +1;
+    else if(source[strlen(source) - 1] == '-') dest[MAX_DIGIT] = -1;
 }
 
 int file_io_write_new(char file_name[MAX_FILENAME_STRING], char text[][MAX_STRING], int text_line_count)
@@ -89,24 +93,23 @@ int status_save(int variable[5][BINT_ARR_LEN], int history[3][BINT_ARR_LEN])
     char file_name[MAX_FILENAME_STRING] = "cal.txt";
     char text[8][MAX_STRING] = {0};
 
-    big_int_tostring(variable[0], text[0]);
-    big_int_tostring(variable[1], text[1]);
-    big_int_tostring(variable[2], text[2]);
-    big_int_tostring(variable[3], text[3]);
-    big_int_tostring(variable[4], text[4]);
-    big_int_tostring(history[0], text[5]);
-    big_int_tostring(history[1], text[6]);
-    big_int_tostring(history[2], text[7]);
+    big_int_fprint(variable[0], text[0]);
+    big_int_fprint(variable[1], text[1]);
+    big_int_fprint(variable[2], text[2]);
+    big_int_fprint(variable[3], text[3]);
+    big_int_fprint(variable[4], text[4]);
+    big_int_fprint(history[0], text[5]);
+    big_int_fprint(history[1], text[6]);
+    big_int_fprint(history[2], text[7]);
 
     return file_io_write_new(file_name, text, 8) ? SUCCESS : FAIL;
 }
 
-void status_load(int dest_variable[5][BINT_ARR_LEN], int dest_history[3][BINT_ARR_LEN])
+int status_load(int dest_variable[5][BINT_ARR_LEN], int dest_history[3][BINT_ARR_LEN])
 {
     char file_name[MAX_FILENAME_STRING] = "cal.txt";
     char data[8][MAX_STRING] = {0};
-
-    file_io_read(file_name, 8, data);
+    if(!file_io_read(file_name, 8, data)) return FAIL;
     big_int_tointeger(data[0], dest_variable[0]);
     big_int_tointeger(data[1], dest_variable[1]);
     big_int_tointeger(data[2], dest_variable[2]);
@@ -115,6 +118,7 @@ void status_load(int dest_variable[5][BINT_ARR_LEN], int dest_history[3][BINT_AR
     big_int_tointeger(data[5], dest_history[0]);
     big_int_tointeger(data[6], dest_history[1]);
     big_int_tointeger(data[7], dest_history[2]);
+    return SUCCESS;
 }
 
 #endif

@@ -5,20 +5,25 @@
 #include "file_io.c"
 #include "draw.c"
 
-void command_history(int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN], char[MAX_STRING], int);         // History (H/h) Command
+void command_history(int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                     int[MAX_LINE_COUNT], char[MAX_LINE_COUNT][MAX_STRING]);                    // History (H/h) Command
 int command_load(int[VARIABLE_COUNT][BINT_ARR_LEN], int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN]); // Load    (L/l) Command
 int command_save(int[VARIABLE_COUNT][BINT_ARR_LEN], int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN]); // Save    (S/s) Command
 void command_refresh(int[MAX_LINE_COUNT]);                                                      // Refresh (R/r) Command
-void command_reset(int[VARIABLE_COUNT][BINT_ARR_LEN],int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN], 
-                   int[MAX_LINE_COUNT]);                                                        // Reset   (T/t) Command
+void command_reset(int[VARIABLE_COUNT][BINT_ARR_LEN],
+                   int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN], int[MAX_LINE_COUNT]);             // Reset   (T/t) Command
 int command_quit();                                                                             // Quit    (Q/q) Command
 
 void command_history(int history[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
-                     char line_result[MAX_STRING], int i)
+                     int lines_type[MAX_LINE_COUNT],
+                     char lines[MAX_LINE_COUNT][MAX_STRING])
 {
     char temp_string[MAX_STRING];
-    big_int_tostring(history[i], temp_string);
-    sprintf(line_result, "h%d = %s", i + 1, temp_string);
+    for(int i = 0; i < HISTORY_VARIABLE_COUNT; i++)
+    {
+        big_int_tostring(history[i], temp_string);
+        append_line(lines_type, lines, LINE_TYPE_OUTPUT, temp_string);
+    }
 }
 
 void command_refresh(int lines_type[MAX_LINE_COUNT])

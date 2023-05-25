@@ -8,6 +8,7 @@ void draw_main(int variable[VARIABLE_COUNT][BINT_ARR_LEN], int line_type[MAX_LIN
 void draw_result(char result[MAX_STRING + 5]);
 void draw_input(char expresion_raw[MAX_STRING]);
 void draw_lines(int line_type[MAX_LINE_COUNT], char lines[MAX_LINE_COUNT][MAX_STRING]);
+void append_line(int[MAX_LINE_COUNT], char[MAX_LINE_COUNT][MAX_STRING], int, char[MAX_STRING]);
 
 void draw_main(int variable[VARIABLE_COUNT][BINT_ARR_LEN],
                int line_type[MAX_LINE_COUNT],
@@ -77,6 +78,31 @@ void draw_input(char result[MAX_STRING])
 void clear_screen()
 {
     system("@cls||clear");
+}
+
+void append_line(int lines_type[MAX_LINE_COUNT],
+                 char lines[MAX_LINE_COUNT][MAX_STRING],
+                 int incoming_type,
+                 char incoming_line[MAX_STRING])
+{
+    int line_count = 0;
+    for(; line_count < MAX_LINE_COUNT; line_count++)
+    {
+        if(lines_type[line_count] == LINE_TYPE_NOTHING)
+            break;
+    }
+
+    if(line_count == MAX_LINE_COUNT)
+    {
+        for(int i = 0; i < MAX_LINE_COUNT - 1; i++)
+        {
+            lines_type[i] = lines_type[i+1];
+            strcpy(lines[i], lines[i+1]);
+        }
+        line_count = MAX_LINE_COUNT - 1;
+    }
+    lines_type[line_count] = incoming_type;
+    strcpy(lines[line_count], incoming_line);
 }
 
 #endif

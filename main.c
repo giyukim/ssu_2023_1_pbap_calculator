@@ -5,6 +5,9 @@
 #include "command.c"
 
 
+#define LOOP_CONTINUE   1
+#define LOOP_STOP       0
+
 
 int eval_expression(char exp_raw[MAX_STRING],
                     int variables[VARIABLE_COUNT][BINT_ARR_LEN],
@@ -41,104 +44,88 @@ int eval_expression(char exp_raw[MAX_STRING],
 }
 
 
-void append_line(int lines_type[MAX_LINE_COUNT],
-                 char lines[MAX_LINE_COUNT][MAX_STRING],
-                 int incoming_type,
-                 char incoming_line[MAX_STRING])
+int screen_iteration(int variables[VARIABLE_COUNT][BINT_ARR_LEN],
+                     int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                     int lines_type[MAX_LINE_COUNT], char lines[MAX_LINE_COUNT][MAX_STRING])
 {
-    int line_count = 0;
-    for(; line_count < MAX_LINE_COUNT; line_count++)
+    char exp_raw[MAX_STRING], str_result[MAX_STRING];
+    int command_result[1], loop = LOOP_CONTINUE;
+    _Bool error = 0;
+
+    await_input(exp_raw);
+    append_line(lines_type, lines, LINE_TYPE_INPUT, exp_raw);
+
+    if(eval_expression(exp_raw, variables, history_variables, str_result, command_result) == FAIL)
     {
-        if(lines_type[line_count] == LINE_TYPE_NOTHING)
-            break;
+        error = 1;
+        goto raise_error;
     }
 
-    if(line_count == MAX_LINE_COUNT)
+    switch(command_result[0])
     {
-        for(int i = 0; i < MAX_LINE_COUNT - 1; i++)
-        {
-            lines_type[i] = lines_type[i+1];
-            strcpy(lines[i], lines[i+1]);
-        }
-        line_count = MAX_LINE_COUNT - 1;
+        case COMMAND_HISTORY:
+            command_history(history_variables, lines_type, lines);
+            goto print_screen;
+        case COMMAND_SAVE:
+            if(command_save(variables, history_variables) == FAIL)
+            {
+                error = 1;
+                goto raise_error;
+            }
+            strcpy(str_result, "cal.txt에 저장");
+            break;
+        case COMMAND_LOAD:
+            if(command_load(variables, history_variables) == FAIL)
+            {
+                error = 1;
+                goto raise_error;
+            }
+            command_refresh(lines_type);
+            strcpy(str_result, "cal.txt로부터 복구");
+            break;
+        case COMMAND_REFRESH:
+            command_refresh(lines_type);
+            goto print_screen;
+        case COMMAND_RESET:
+            command_reset(variables, history_variables, lines_type);
+            goto print_screen;
+        case COMMAND_NOTHING:
+            break;
+        case COMMAND_QUIT:
+            strcpy(str_result, "bye");
+            loop = LOOP_STOP;
+            break;
+        default:
+            error = 1;
+            goto raise_error;
     }
-    lines_type[line_count] = incoming_type;
-    strcpy(lines[line_count], incoming_line);
+    
+raise_error:
+    if(error) strcpy(str_result, "error");
+
+    append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
+
+print_screen:
+    clear_screen();
+    draw_main(variables, lines_type, lines);
+
+    return loop;
 }
 
 
 int main() {
     int variables[VARIABLE_COUNT][BINT_ARR_LEN];
     int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN];
-    int lines_type[MAX_LINE_COUNT], command_result[1];
-    char lines[MAX_LINE_COUNT][MAX_STRING], exp_raw[MAX_STRING], str_result[MAX_STRING];
-    _Bool loop = 1;
+    int lines_type[MAX_LINE_COUNT];
+    char lines[MAX_LINE_COUNT][MAX_STRING];
 
     command_reset(variables, history_variables, lines_type);
-    lines_type[0] = LINE_TYPE_NOTHING;
+    clear_screen();
+    draw_main(variables, lines_type, lines);
 
-    while(loop)
+    while(1)
     {
-        _Bool error = 0;
-
-        clear_screen();
-        draw_main(variables, lines_type, lines);
-        await_input(exp_raw);
-        append_line(lines_type, lines, LINE_TYPE_INPUT, exp_raw);
-
-        if(eval_expression(exp_raw, variables, history_variables, str_result, command_result) == FAIL)
-        {
-            error = 1;
-            goto raise_error;
-        }
-
-        switch(command_result[0])
-        {
-            case COMMAND_HISTORY:
-                command_history(history_variables, str_result, 0);
-                append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
-                command_history(history_variables, str_result, 1);
-                append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
-                command_history(history_variables, str_result, 2);
-                append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
-                continue;
-            case COMMAND_SAVE:
-                if(command_save(variables, history_variables) == FAIL)
-                {
-                    error = 1;
-                    goto raise_error;
-                }
-                strcpy(str_result, "cal.txt에 저장");
-                break;
-            case COMMAND_LOAD:
-                if(command_load(variables, history_variables) == FAIL)
-                {
-                    error = 1;
-                    goto raise_error;
-                }
-                command_refresh(lines_type);
-                strcpy(str_result, "cal.txt로부터 복구");
-                break;
-            case COMMAND_REFRESH:
-                command_refresh(lines_type);
-                continue;
-            case COMMAND_RESET:
-                command_reset(variables, history_variables, lines_type);
-                continue;
-            case COMMAND_NOTHING:
-                break;
-            case COMMAND_QUIT:
-                printf("======> bye\n");
-                loop = 0;
-                break;
-            default:
-                error = 1;
-                goto raise_error;
-        }
-
-raise_error:
-        if(error) strcpy(str_result, "error");
-
-        append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
+        if(screen_iteration(variables, history_variables, lines_type, lines) == LOOP_STOP)
+            break;
     }
 }

@@ -9,7 +9,36 @@
 #define LOOP_STOP       0
 
 
-int eval_expression(char exp_raw[MAX_STRING], int variables[VARIABLE_COUNT][BINT_ARR_LEN], int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN], char line_result[MAX_STRING], int command_result[1])
+// 입력받은 문자열을 계산하는 함수
+// 성공시 SUCCESS, 실패 시 FAIL 리턴 
+int eval_expression(char[MAX_STRING],
+                    int[VARIABLE_COUNT][BINT_ARR_LEN], int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                    char[MAX_STRING], int[1]);
+
+// 메인 함수에서 반복문 안에 들어가는 함수.
+// 종료 시 (q 커맨드 등) LOOP_STOP 리턴. 아니면 LOOP_CONTINUE 리턴 
+int screen_iteration(int[VARIABLE_COUNT][BINT_ARR_LEN], int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                     int[MAX_LINE_COUNT], char[MAX_LINE_COUNT][MAX_STRING]);
+
+
+int main() {
+    int variables[VARIABLE_COUNT][BINT_ARR_LEN];
+    int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN];
+    int line_types[MAX_LINE_COUNT];
+    char lines[MAX_LINE_COUNT][MAX_STRING];
+
+    while(1)
+    {
+        if(screen_iteration(variables, history_variables, line_types, lines) == LOOP_STOP)
+            break;
+    }
+}
+
+
+int eval_expression(char exp_raw[MAX_STRING],
+                    int variables[VARIABLE_COUNT][BINT_ARR_LEN],
+                    int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
+                    char line_result[MAX_STRING], int command_result[1])
 {
     int count_exp_raw = strlen(exp_raw);
     int exp_tokens[MAX_TOKEN_COUNT][2];
@@ -42,7 +71,7 @@ int eval_expression(char exp_raw[MAX_STRING], int variables[VARIABLE_COUNT][BINT
 
 int screen_iteration(int variables[VARIABLE_COUNT][BINT_ARR_LEN],
                      int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
-                     int lines_type[MAX_LINE_COUNT], char lines[MAX_LINE_COUNT][MAX_STRING])
+                     int line_types[MAX_LINE_COUNT], char lines[MAX_LINE_COUNT][MAX_STRING])
 {
     char exp_raw[MAX_STRING], str_result[MAX_STRING];
     int command_result[1], loop = LOOP_CONTINUE;
@@ -52,9 +81,9 @@ int screen_iteration(int variables[VARIABLE_COUNT][BINT_ARR_LEN],
     if(first)
     {
         // 첫 실행 시 화면 출력
-        command_reset(variables, history_variables, lines_type);
+        command_reset(variables, history_variables, line_types);
         clear_screen();
-        draw_main(variables, lines_type, lines);
+        draw_main(variables, line_types, lines);
         first = 0;
     }
 
@@ -62,7 +91,7 @@ int screen_iteration(int variables[VARIABLE_COUNT][BINT_ARR_LEN],
     await_input(exp_raw);
 
     // 입력값을 줄에 추가
-    append_line(lines_type, lines, LINE_TYPE_INPUT, exp_raw);
+    append_line(line_types, lines, LINE_TYPE_INPUT, exp_raw);
 
     // 입력값 해석+계산 후 결과값 저장
     if(eval_expression(exp_raw, variables, history_variables, str_result, command_result) == FAIL)
@@ -78,7 +107,7 @@ int screen_iteration(int variables[VARIABLE_COUNT][BINT_ARR_LEN],
         case COMMAND_NOTHING:
             break;
         case COMMAND_HISTORY:
-            command_history(history_variables, lines_type, lines);
+            command_history(history_variables, line_types, lines);
             goto print_screen;
         case COMMAND_SAVE:
             if(command_save(variables, history_variables) == FAIL)
@@ -94,14 +123,14 @@ int screen_iteration(int variables[VARIABLE_COUNT][BINT_ARR_LEN],
                 error = 1;
                 goto raise_error;
             }
-            command_refresh(lines_type);
+            command_refresh(line_types);
             strcpy(str_result, "cal.txt로부터 복구");
             break;
         case COMMAND_REFRESH:
-            command_refresh(lines_type);
+            command_refresh(line_types);
             goto print_screen;
         case COMMAND_RESET:
-            command_reset(variables, history_variables, lines_type);
+            command_reset(variables, history_variables, line_types);
             goto print_screen;
         case COMMAND_QUIT:
             strcpy(str_result, "bye");
@@ -116,26 +145,12 @@ raise_error:
     if(error) strcpy(str_result, "error");
 
     // 출력값 줄에 추가
-    append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
+    append_line(line_types, lines, LINE_TYPE_OUTPUT, str_result);
 
 print_screen:
     // 화면 출력
     clear_screen();
-    draw_main(variables, lines_type, lines);
+    draw_main(variables, line_types, lines);
 
     return loop;
-}
-
-
-int main() {
-    int variables[VARIABLE_COUNT][BINT_ARR_LEN];
-    int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN];
-    int lines_type[MAX_LINE_COUNT];
-    char lines[MAX_LINE_COUNT][MAX_STRING];
-
-    while(1)
-    {
-        if(screen_iteration(variables, history_variables, lines_type, lines) == LOOP_STOP)
-            break;
-    }
 }

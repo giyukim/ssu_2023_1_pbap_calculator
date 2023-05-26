@@ -6,19 +6,47 @@
 #include "int_op.c"
 
 
+// 문자가 '0' ~ '9'에 포함되는지 확인하는 함수
 _Bool is_digit_integer(char);
+
+// 토큰이 [숫자 타입]인지 확인하는 함수 (INTEGER, VARIABLE, ...)
 _Bool is_number_type(int[2]);
+
+// 토큰이 단향 연산자인지 확인하는 함수
 _Bool is_unary_operator(int[2]);
+
+// 토큰이 대입 연산자인지 확인하는 함수
 _Bool is_assign_operator(int[2]);
 
+
+// 문자 -> 연산자 토큰 변환 함수
+// 상황에 따라 SUCCESS, FAIL, SKIP 리턴
 int assign_token_operator(char, int[2], _Bool);
+
+// 문자 -> 커맨드 토큰 변환 함수
+// 상황에 따라 SUCCESS, FAIL, SKIP 리턴
 int assign_token_command(char, int[2]);
+
+// 문자 -> 변수 토큰 변환 함수
+// 상황에 따라 SUCCESS, FAIL, SKIP 리턴
 int assign_token_variable(char, int[2]);
+
+// 문자 -> 토큰 변환 함수
+// 알 수 없는 문자나 형식에 맞지 않는 토큰 발견 시 FAIL 리턴. 아니면 SUCCESS 리턴
 int assign_token(char, int[MAX_TOKEN_COUNT][2], int);
 
+
+// 문자열 -> 토큰 배열 변환 함수
+// 알 수 없는 문자 발견 시 FAIL 리턴. 아니면 SUCCESS 리턴
 int parse_to_token(char[MAX_STRING], char, int[MAX_TOKEN_COUNT][2], int[MAX_TOKEN_COUNT][BINT_ARR_LEN]);
+
+// 토큰 배열이 커맨드 전용인지 확인하는 함수
 _Bool token_validate_command(int[MAX_TOKEN_COUNT][2]);
+
+// 토큰 길이를 반환하는 함수
 int get_token_len(int[MAX_TOKEN_COUNT][2]);
+
+// 디버그: 토큰 배열 출력 함수
 void debug_print_tokens(int[MAX_TOKEN_COUNT][2], int[MAX_TOKEN_COUNT][BINT_ARR_LEN]);
 
 

@@ -5,18 +5,50 @@
 #include "common.h"
 
 
+// 큰 정수 선형 결합 함수
+// 성공 시 SUCCESS, 오류 시 FAIL 리턴
 int big_int_lcomb(int, int[BINT_ARR_LEN], int, int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
+
+// 큰 정수 쉬프트 함수
+// 성공 시 SUCCESS, 오류 시 FAIL 리턴
 int big_int_shift(int, int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
+
+// 정수 x 큰 정수 함수
+// 성공 시 SUCCESS, 오류 시 FAIL 리턴
 int big_int_times(int, int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
+
+// 큰 정수 x 큰 정수 함수
+// 성공 시 SUCCESS, 오류 시 FAIL 리턴
 int big_int_mul(int[BINT_ARR_LEN], int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
+
+// 큰 정수 나눗셈&나머지 함수
+// 성공 시 SUCCESS, 오류 시 FAIL 리턴
 int big_int_divmod(int[BINT_ARR_LEN], int[BINT_ARR_LEN], int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
 
+
+// 정수 -> 큰정수 변환 함수
 void big_int_from(long long, int[BINT_ARR_LEN]);
+
+// 큰 정수 자릿수 계산 함수
 int big_int_len(int[BINT_ARR_LEN]);
+
+// 큰 정수 복사 함수
 void big_int_copy(int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
+
+// 큰 정수 수정 함수
+// 성공 시 SUCCESS, 오류 시 FAIL 리턴
 int big_int_fix(int, int[BINT_ARR_LEN]);
+
+// 숫자 문자열 -> 큰 정수 변환 함수
+// 성공 시 SUCCESS, 오류 시 FAIL 리턴
 int big_int_parse(char[MAX_STRING], int, int, int[BINT_ARR_LEN]);
+
+// Made by 안현석
+// 큰 정수 -> 문자열 변환 함수
 void big_int_tostring(int[BINT_ARR_LEN], char[MAX_STRING]);
+
+// Made by 안현석
+// 큰 정수 출력 함수
 void big_int_print(int[BINT_ARR_LEN]);
 
 

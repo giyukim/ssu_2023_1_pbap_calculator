@@ -51,18 +51,36 @@ int screen_iteration(int variables[VARIABLE_COUNT][BINT_ARR_LEN],
     char exp_raw[MAX_STRING], str_result[MAX_STRING];
     int command_result[1], loop = LOOP_CONTINUE;
     _Bool error = 0;
+    static _Bool first = 1;
 
+    if(first)
+    {
+        // 첫 실행 시 화면 출력
+        command_reset(variables, history_variables, lines_type);
+        clear_screen();
+        draw_main(variables, lines_type, lines);
+        first = 0;
+    }
+
+    // 입력 대기
     await_input(exp_raw);
+
+    // 입력값을 줄에 추가
     append_line(lines_type, lines, LINE_TYPE_INPUT, exp_raw);
 
+    // 입력값 해석+계산 후 결과값 저장
     if(eval_expression(exp_raw, variables, history_variables, str_result, command_result) == FAIL)
     {
         error = 1;
         goto raise_error;
     }
 
+    // 커맨드인지 확인
     switch(command_result[0])
     {
+        // 커맨드가 아님. 단순 식
+        case COMMAND_NOTHING:
+            break;
         case COMMAND_HISTORY:
             command_history(history_variables, lines_type, lines);
             goto print_screen;
@@ -89,8 +107,6 @@ int screen_iteration(int variables[VARIABLE_COUNT][BINT_ARR_LEN],
         case COMMAND_RESET:
             command_reset(variables, history_variables, lines_type);
             goto print_screen;
-        case COMMAND_NOTHING:
-            break;
         case COMMAND_QUIT:
             strcpy(str_result, "bye");
             loop = LOOP_STOP;
@@ -103,9 +119,11 @@ int screen_iteration(int variables[VARIABLE_COUNT][BINT_ARR_LEN],
 raise_error:
     if(error) strcpy(str_result, "error");
 
+    // 출력값 줄에 추가
     append_line(lines_type, lines, LINE_TYPE_OUTPUT, str_result);
 
 print_screen:
+    // 화면 출력
     clear_screen();
     draw_main(variables, lines_type, lines);
 
@@ -118,10 +136,6 @@ int main() {
     int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN];
     int lines_type[MAX_LINE_COUNT];
     char lines[MAX_LINE_COUNT][MAX_STRING];
-
-    command_reset(variables, history_variables, lines_type);
-    clear_screen();
-    draw_main(variables, lines_type, lines);
 
     while(1)
     {

@@ -9,11 +9,7 @@
 #define LOOP_STOP       0
 
 
-int eval_expression(char exp_raw[MAX_STRING],
-                    int variables[VARIABLE_COUNT][BINT_ARR_LEN],
-                    int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
-                    char line_result[MAX_STRING],
-                    int command_result[1])
+int eval_expression(char exp_raw[MAX_STRING], int variables[VARIABLE_COUNT][BINT_ARR_LEN], int history_variables[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN], char line_result[MAX_STRING], int command_result[1])
 {
     int count_exp_raw = strlen(exp_raw);
     int exp_tokens[MAX_TOKEN_COUNT][2];

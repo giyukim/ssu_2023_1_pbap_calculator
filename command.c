@@ -14,15 +14,15 @@ void command_reset(int[VARIABLE_COUNT][BINT_ARR_LEN],
                    int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN], int[MAX_LINE_COUNT]);             // Reset   (T/t) Command
 int command_quit();                                                                             // Quit    (Q/q) Command
 
-void command_history(int history[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
-                     int lines_type[MAX_LINE_COUNT],
-                     char lines[MAX_LINE_COUNT][MAX_STRING])
+void command_history(int history[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN], int lines_type[MAX_LINE_COUNT], char lines[MAX_LINE_COUNT][MAX_STRING])
 {
     char temp_string[MAX_STRING];
     for(int i = 0; i < HISTORY_VARIABLE_COUNT; i++)
     {
+        char print_string[MAX_STRING + 5] = {'h', (char)i + '0' + 1, ' ', '=', ' '};
         big_int_tostring(history[i], temp_string);
-        append_line(lines_type, lines, LINE_TYPE_OUTPUT, temp_string);
+        strcat(print_string, temp_string);
+        append_line(lines_type, lines, LINE_TYPE_OUTPUT, print_string);
     }
 }
 

@@ -5,14 +5,24 @@
 #include "file_io.c"
 #include "draw.c"
 
+
+// History (H/h) 커맨드
 void command_history(int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
-                     int[MAX_LINE_COUNT], char[MAX_LINE_COUNT][MAX_STRING]);                    // History (H/h) Command
-int command_load(int[VARIABLE_COUNT][BINT_ARR_LEN], int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN]); // Load    (L/l) Command
-int command_save(int[VARIABLE_COUNT][BINT_ARR_LEN], int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN]); // Save    (S/s) Command
-void command_refresh(int[MAX_LINE_COUNT]);                                                      // Refresh (R/r) Command
+                     int[MAX_LINE_COUNT], char[MAX_LINE_COUNT][MAX_STRING]);
+
+// Load    (L/l) 커맨드
+int command_load(int[VARIABLE_COUNT][BINT_ARR_LEN], int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN]);
+
+// Save    (S/s) 커맨드
+int command_save(int[VARIABLE_COUNT][BINT_ARR_LEN], int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN]);
+
+// Refresh (R/r) 커맨드
+void command_refresh(int[MAX_LINE_COUNT]);                                                     
+
+// Reset   (T/t) 커맨드
 void command_reset(int[VARIABLE_COUNT][BINT_ARR_LEN],
-                   int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN], int[MAX_LINE_COUNT]);             // Reset   (T/t) Command
-int command_quit();                                                                             // Quit    (Q/q) Command
+                   int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN], int[MAX_LINE_COUNT]);
+
 
 void command_history(int history[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN], int lines_type[MAX_LINE_COUNT], char lines[MAX_LINE_COUNT][MAX_STRING])
 {

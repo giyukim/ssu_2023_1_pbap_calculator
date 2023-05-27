@@ -17,65 +17,53 @@
 #define LEVEL_NOTHING       (-1)    // 연산자 레벨 오류
 
 
-/**
- * 연산자 -> 연산자 레벨 반환 함수
- */
+// 연산자 -> 연산자 레벨 반환 함수
 int get_operator_level(int[2]);
 
-/**
- * 연산자 레벨 -> 항수 변환 함수
- */
+// 연산자 레벨 -> 항수 변환 함수
 int level_to_numeral(int);
 
-/**
- * 그룹 길이 반환 함수.
- * [index][2] == LEVEL_NOTHING을 만족하는 가장 작은 index값이 있을 때,
- * index을 리턴함
- */
+// 그룹 길이 반환 함수
+// [index][2] == LEVEL_NOTHING을 만족하는 가장 작은 index값 리턴
 int get_group_len(int[MAX_GROUP_COUNT][3]);
 
-/**
- * 그룹 초기화 함수.
- * 모든 index에 대해 [index][2] = LEVEL_NOTHING을 실행함
- */
+// 그룹 초기화 함수
+// 그룹 배열의 모든 [index][2]에 LEVEL_NOTHING 대입
 void group_reset(int[MAX_GROUP_COUNT][3]);
 
-/**
- * 토큰 그룹화 함수.
- * 그룹 결과를 exp_groups에 저장.
- * 실패 시 INVALID_INDEX 리턴.
- */
+// 토큰 그룹화 함수
+// 그룹 결과를 exp_groups에 저장
+// 실패 시 INVALID_INDEX 리턴
 int group_expression(int exp_groups[MAX_GROUP_COUNT][3],
                      int[MAX_TOKEN_COUNT][2],
                      int, int);
-/**
- * exp_token에 따라 토큰에 있는 큰 정수값 result로 복사
- */
+
+// 디버그: 토큰 그룹 배열 출력 함수
+void debug_print_groups(int exp_groups[MAX_GROUP_COUNT][3],
+                        int exp_groups_result[MAX_GROUP_COUNT][BINT_ARR_LEN]);
+
+// exp_token에 따라 토큰에 있는 큰 정수값 result로 복사
 int copy_from_number_type(int exp_token[2],
                           int[MAX_TOKEN_COUNT][BINT_ARR_LEN],
                           int[VARIABLE_COUNT][BINT_ARR_LEN],
                           int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
                           int result[BINT_ARR_LEN]);
-/**
- * token_index를 포함하는 그룹 발견 시:
- *  - result에 그룹 결과값 저장
- *  - 해당 그룹의 끝 인덱스 반환.
- * 아니면 INVALID_INDEX 반환
- */
+
+// token_index를 포함하는 그룹 발견 시:
+//  - result에 그룹 결과값 저장
+//  - 해당 그룹의 끝 인덱스 반환.
+// 아니면 INVALID_INDEX 반환
 int search_group_result(int token_index, int,
                         int[MAX_GROUP_COUNT][3],
                         int[MAX_GROUP_COUNT][BINT_ARR_LEN],
                         int[BINT_ARR_LEN]);
-/**
- * 이항 연산자 값인 operator_type에 따라:
- *  - result = result (연산자) victim
- * 단항이 올 경우 FAIL 리턴
- */
+
+// 이항 연산자 값인 operator_type에 따라:
+//  - result = result (연산자) victim
+// 단항이 올 경우 FAIL 리턴
 int operator_calculation(int operator_type, int[BINT_ARR_LEN], int[BINT_ARR_LEN]);
 
-/**
- * 그룹화된 토큰 계산
- */
+// 그룹화된 토큰 계산 함수
 int calculate_groups(int[MAX_TOKEN_COUNT][2],
                      int[MAX_TOKEN_COUNT][BINT_ARR_LEN],
                      int[VARIABLE_COUNT][BINT_ARR_LEN],
@@ -83,10 +71,9 @@ int calculate_groups(int[MAX_TOKEN_COUNT][2],
                      int[MAX_GROUP_COUNT][3],
                      int[MAX_GROUP_COUNT][BINT_ARR_LEN]);
 
-/**
- * 토큰화된 수식 처리 및 계산.
- * 커맨드 모드는 따로 핸들링하지 않으므로 커맨드 토큰 발견 시 SKIP 리턴
- */
+// 토큰화된 수식 처리 및 계산 함수
+// 커맨드 모드는 따로 핸들링하지 않으므로 커맨드 토큰 발견 시 SKIP 리턴
+// 아니면 상황에 따라 SUCCESS, FAIL 리턴
 int eval_exp_tokens(int[MAX_TOKEN_COUNT][2],
                     int[MAX_TOKEN_COUNT][BINT_ARR_LEN],
                     int[VARIABLE_COUNT][BINT_ARR_LEN],
@@ -94,12 +81,9 @@ int eval_exp_tokens(int[MAX_TOKEN_COUNT][2],
                     int, int,
                     int[BINT_ARR_LEN]);
 
-/**
- * 히스토리 저장 함수
- */
+// 히스토리 업데이트 함수
 void update_history(int[HISTORY_VARIABLE_COUNT][BINT_ARR_LEN],
                     int[BINT_ARR_LEN]);
-
 
 
 int get_operator_level(int exp_token[2])

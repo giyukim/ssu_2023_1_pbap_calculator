@@ -4,14 +4,29 @@
 #include "common.h"
 #include "int_op.c"
 
-void draw_main(int variable[VARIABLE_COUNT][BINT_ARR_LEN], int line_type[MAX_LINE_COUNT], char lines[MAX_LINE_COUNT][MAX_STRING]);
-void draw_result(char result[MAX_STRING + 5]);
-void draw_input(char expresion_raw[MAX_STRING]);
-void draw_lines(int line_type[MAX_LINE_COUNT], char lines[MAX_LINE_COUNT][MAX_STRING]);
+
+// 매인 화면 출력 함수
+void draw_main(int[VARIABLE_COUNT][BINT_ARR_LEN], int[MAX_LINE_COUNT], char[MAX_LINE_COUNT][MAX_STRING]);
+
+// 줄 개수 계산 함수
+int get_lines_count(int[MAX_LINE_COUNT]);
+
+// 저장된 모든 줄을 출력하는 함수
+void draw_lines(int[MAX_LINE_COUNT], char[MAX_LINE_COUNT][MAX_STRING]);
+
+// "출력 줄" 출력 함수
+void draw_result(char[MAX_STRING + 5]);
+
+// "입력 줄" 출력 함수
+void draw_input(char[MAX_STRING]);
+
+// 줄 "부착" 함수
+// 더 이상 부착할 공간이 없을 시 모든 줄을 -1칸씩 이동
 void append_line(int[MAX_LINE_COUNT], char[MAX_LINE_COUNT][MAX_STRING], int, char[MAX_STRING]);
 
+
 void draw_main(int variable[VARIABLE_COUNT][BINT_ARR_LEN],
-               int line_type[MAX_LINE_COUNT],
+               int line_types[MAX_LINE_COUNT],
                char lines[MAX_LINE_COUNT][MAX_STRING]){
     printf("************************************************************************\n");
     printf("                               큰정수계산기\n");
@@ -31,20 +46,28 @@ void draw_main(int variable[VARIABLE_COUNT][BINT_ARR_LEN],
     printf("\n************************************************************************\n");
     printf("Help : H(istory) L(oad) R(efresh) (rese)T S(ave) Q(uit)\n"); // Reflesh -> Refresh
     printf("************************************************************************\n");
-    draw_lines(line_type, lines);
+    draw_lines(line_types, lines);
 }
 
-void draw_lines(int line_type[MAX_LINE_COUNT],
+int get_lines_count(int line_types[MAX_LINE_COUNT])
+{
+    int count = 0;
+    for(; count < MAX_LINE_COUNT && line_types[count] != LINE_TYPE_NOTHING; count++);
+    return count;
+}
+
+void draw_lines(int line_types[MAX_LINE_COUNT],
                 char lines[MAX_LINE_COUNT][MAX_STRING])
 {
-    for(int i = 0; i < MAX_LINE_COUNT && line_type[i] != LINE_TYPE_NOTHING; i++)
+    int line_count = get_lines_count(line_types);
+    for(int i = 0; i < MAX_LINE_COUNT && line_types[i] != LINE_TYPE_NOTHING; i++)
     {
-        if(line_type[i] == LINE_TYPE_INPUT)
+        if(line_types[i] == LINE_TYPE_INPUT)
         {
             draw_input(lines[i]);
             printf("\n");
         }
-        else if(line_type[i] == LINE_TYPE_OUTPUT)
+        else if(line_types[i] == LINE_TYPE_OUTPUT)
         {
             draw_result(lines[i]);
             printf("\n");
@@ -80,28 +103,23 @@ void clear_screen()
     system("@cls||clear");
 }
 
-void append_line(int lines_type[MAX_LINE_COUNT],
+void append_line(int line_types[MAX_LINE_COUNT],
                  char lines[MAX_LINE_COUNT][MAX_STRING],
                  int incoming_type,
                  char incoming_line[MAX_STRING])
 {
-    int line_count = 0;
-    for(; line_count < MAX_LINE_COUNT; line_count++)
-    {
-        if(lines_type[line_count] == LINE_TYPE_NOTHING)
-            break;
-    }
+    int line_count = get_lines_count(line_types);
 
     if(line_count == MAX_LINE_COUNT)
     {
         for(int i = 0; i < MAX_LINE_COUNT - 1; i++)
         {
-            lines_type[i] = lines_type[i+1];
+            line_types[i] = line_types[i+1];
             strcpy(lines[i], lines[i+1]);
         }
         line_count = MAX_LINE_COUNT - 1;
     }
-    lines_type[line_count] = incoming_type;
+    line_types[line_count] = incoming_type;
     strcpy(lines[line_count], incoming_line);
 }
 

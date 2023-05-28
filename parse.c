@@ -205,7 +205,7 @@ int parse_to_token(char exp_raw[MAX_STRING], char count_exp_raw,
                    int exp_tokens_integer[MAX_TOKEN_COUNT][BINT_ARR_LEN])
 {
 	// 수식 길이 초과 시 에러 
-	if(count_exp_raw >= 100 || count_exp_raw == 0)
+	if(count_exp_raw > 100 || count_exp_raw == 0)
 		return FAIL;
 
 	int count_exp_tokens = 0;

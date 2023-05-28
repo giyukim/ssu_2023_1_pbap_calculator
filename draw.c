@@ -86,7 +86,7 @@ void await_input(char dest[MAX_STRING])
     // scanf("%[^\n]s", dest);
     // 버그때문에 scanf를 못 쓰겠음
     int op, i = 0;
-    while((op = getchar()) != '\n')
+    while(i < MAX_STRING-1 && (op = getchar()) != '\n')
     {
         dest[i++] = op;
     }

@@ -6,7 +6,7 @@
 #include "int_op.c"
 
 
-#define MAX_GROUP_COUNT     (MAX_DIGIT_EXPRESSION / 2 + 5)
+#define MAX_GROUP_COUNT     (MAX_DIGIT_EXPRESSION * 2 / 3 + 6)
 
 // NUMERALs (항수)
 #define NUMERAL_NOTHING     (-1)    // 항수 오류

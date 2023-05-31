@@ -1,5 +1,7 @@
-/test*.c
-/test*.exe
+# /test.c
+test*.exe
+*.exe
+cal.txt
 -_*
 desktop.ini
 /.idea/
@@ -7,3 +9,6 @@ desktop.ini
 /cmake-build-debug/
 /cmake-build-release/
 /CMakeLists.txt
+.vscode/*
+/test.c
+a.out

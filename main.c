@@ -1098,7 +1098,10 @@ void await_input(char dest[MAX_STRING])
 {
     printf("(input) ");
     int op, i = 0;
-    while(i < MAX_STRING-1 && (op = getchar()) != '\n') dest[i++] = op;
+    while((op = getchar()) != '\n')
+    {
+	    if(i < MAX_STRING - 1) dest[i++] = op;
+    }
     dest[i] = '\0';
 }
 
@@ -1109,7 +1112,7 @@ void draw_input(char result[MAX_STRING])
 
 void clear_screen()
 {
-    system("@cls||clear");
+    system("clear");
 }
 
 void append_line(int line_types[MAX_LINE_COUNT], char lines[MAX_LINE_COUNT][MAX_STRING], int incoming_type, char incoming_line[MAX_STRING])

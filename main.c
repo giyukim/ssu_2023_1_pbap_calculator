@@ -183,9 +183,6 @@ int file_io_write_new(char [MAX_FILENAME_STRING], char [][MAX_STRING], int);
 // 파일 내용을 읽어들이는 함수
 int file_io_read(char [MAX_FILENAME_STRING], int, char [][MAX_STRING]);
 
-// 파일을 삭제하는 함수
-int file_remove(char [MAX_FILENAME_STRING]);
-
 // 변수 상태를 cal.txt에 저장하는 함수
 int status_save(int [5][BINT_ARR_LEN], int [3][BINT_ARR_LEN]);
 
@@ -204,6 +201,7 @@ void draw_lines(int[MAX_LINE_COUNT], char[MAX_LINE_COUNT][MAX_STRING]);
 // "출력 줄" 출력 함수
 void draw_result(char[MAX_STRING + 5]);
 
+// 수식 입력 함수
 void await_input(char dest[MAX_STRING]);
 
 // "입력 줄" 출력 함수
@@ -979,27 +977,16 @@ int file_io_write_new(char file_name[MAX_FILENAME_STRING], char text[][MAX_STRIN
     return SUCCESS;
 }
 
-int file_io_read(char file_name[MAX_FILENAME_STRING], int text_line_count, char dest[][MAX_STRING])
-{
+int file_io_read(char file_name[MAX_FILENAME_STRING], int text_line_count, char dest[][MAX_STRING]) {
     FILE *file = fopen(file_name, "r");
-    if(file == NULL) {
+    if (file == NULL) {
         fclose(file);
         return FAIL;
     }
-    for(int loop_temp_line = 0; loop_temp_line < text_line_count; loop_temp_line++) fscanf(file, "%s", dest[loop_temp_line]);
+    for (int loop_temp_line = 0; loop_temp_line < text_line_count; loop_temp_line++)
+        fscanf(file, "%s", dest[loop_temp_line]);
     fclose(file);
     return SUCCESS;
-}
-
-int file_remove(char file_name[MAX_FILENAME_STRING])
-{
-    FILE *file;
-    if (!(file = fopen(file_name, "r"))) {
-        fclose(file);
-        return SKIP;
-    }
-    fclose(file);
-    return remove(file_name) ? FAIL : SUCCESS;
 }
 
 int status_save(int variable[5][BINT_ARR_LEN], int history[3][BINT_ARR_LEN])
